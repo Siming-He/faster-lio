@@ -30,6 +30,7 @@ publish:
     scan_bodyframe_pub_en: true  # true: output the point cloud scans in IMU-body-frame
 
 path_save_en: true
+path_save_en: true
 
 pcd_save:
     pcd_save_en: true

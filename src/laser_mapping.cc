@@ -352,6 +352,43 @@ void LaserMapping::Run() {
     // camera_pose.pose.orientation.w = q3.getW();
     // camera_path_.poses.push_back(camera_pose);
 
+    // tf::Transform transform;
+    // tf::Quaternion q;
+    // transform.setOrigin(tf::Vector3(state_point_.pos(0), state_point_.pos(1), state_point_.pos(2)));
+    // q.setW(state_point_.rot.coeffs()[3]);
+    // q.setX(state_point_.rot.coeffs()[0]);
+    // q.setY(state_point_.rot.coeffs()[1]);
+    // q.setZ(state_point_.rot.coeffs()[2]);
+    // transform.setRotation(q);
+
+    // tf::Transform transform2;
+    // tf::Quaternion q2;
+    // transform2.setOrigin(tf::Vector3(0.1136, -0.047, -0.081375));
+    // q2.setW(0.99999999);
+    // q2.setX(0.0);
+    // q2.setY(0.0);
+    // q2.setZ(0.0);
+    // transform2.setRotation(q2);
+    // transform2 = transform * transform2;
+
+    // // camera_path_
+    // geometry_msgs::PoseStamped camera_pose;
+    // tf::Vector3 vec3;
+    // tf::Quaternion q3;
+    // vec3 = transform2.getOrigin();
+    // q3 = transform2.getRotation();
+
+    // camera_pose.header.stamp = ros::Time().fromSec(lidar_end_time_);
+    // camera_pose.header.frame_id = "camera_init";
+    // camera_pose.pose.position.x = vec3.getX();
+    // camera_pose.pose.position.y = vec3.getY();
+    // camera_pose.pose.position.z = vec3.getZ();
+    // camera_pose.pose.orientation.x = q3.getX();
+    // camera_pose.pose.orientation.y = q3.getY();
+    // camera_pose.pose.orientation.z = q3.getZ();
+    // camera_pose.pose.orientation.w = q3.getW();
+    // camera_path_.poses.push_back(camera_pose);
+
     // update local map
     Timer::Evaluate([&, this]() { MapIncremental(); }, "    Incremental Mapping");
 
