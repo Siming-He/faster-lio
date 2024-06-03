@@ -315,6 +315,43 @@ void LaserMapping::Run() {
         },
         "IEKF Solve and Update");
 
+    // tf::Transform transform;
+    // tf::Quaternion q;
+    // transform.setOrigin(tf::Vector3(state_point_.pos(0), state_point_.pos(1), state_point_.pos(2)));
+    // q.setW(state_point_.rot.coeffs()[3]);
+    // q.setX(state_point_.rot.coeffs()[0]);
+    // q.setY(state_point_.rot.coeffs()[1]);
+    // q.setZ(state_point_.rot.coeffs()[2]);
+    // transform.setRotation(q);
+
+    // tf::Transform transform2;
+    // tf::Quaternion q2;
+    // transform2.setOrigin(tf::Vector3(0.1136, -0.047, -0.081375));
+    // q2.setW(0.99999999);
+    // q2.setX(0.0);
+    // q2.setY(0.0);
+    // q2.setZ(0.0);
+    // transform2.setRotation(q2);
+    // transform2 = transform * transform2;
+
+    // // camera_path_
+    // geometry_msgs::PoseStamped camera_pose;
+    // tf::Vector3 vec3;
+    // tf::Quaternion q3;
+    // vec3 = transform2.getOrigin();
+    // q3 = transform2.getRotation();
+
+    // camera_pose.header.stamp = ros::Time().fromSec(lidar_end_time_);
+    // camera_pose.header.frame_id = "camera_init";
+    // camera_pose.pose.position.x = vec3.getX();
+    // camera_pose.pose.position.y = vec3.getY();
+    // camera_pose.pose.position.z = vec3.getZ();
+    // camera_pose.pose.orientation.x = q3.getX();
+    // camera_pose.pose.orientation.y = q3.getY();
+    // camera_pose.pose.orientation.z = q3.getZ();
+    // camera_pose.pose.orientation.w = q3.getW();
+    // camera_path_.poses.push_back(camera_pose);
+
     // update local map
     Timer::Evaluate([&, this]() { MapIncremental(); }, "    Incremental Mapping");
 
@@ -698,6 +735,41 @@ void LaserMapping::PublishOdometry(const ros::Publisher &pub_odom_aft_mapped) {
     q.setZ(odom_aft_mapped_.pose.pose.orientation.z);
     transform.setRotation(q);
     br.sendTransform(tf::StampedTransform(transform, odom_aft_mapped_.header.stamp, "camera_init", "body"));
+
+    static tf::TransformBroadcaster br2;
+    tf::Transform transform2;
+    tf::Quaternion q2;
+    // transform2.setOrigin(tf::Vector3(0.1136, -0.047, -0.081375));
+    // q2.setW(0.5);
+    // q2.setX(0.5);
+    // q2.setY(-0.5);
+    // q2.setZ(-0.5);
+    transform2.setOrigin(tf::Vector3(0, 0, 0.2));
+    q2.setW(0);
+    q2.setX(0);
+    q2.setY(0);
+    q2.setZ(1);
+    transform2.setRotation(q2);
+    transform2 = transform * transform2;
+    br2.sendTransform(tf::StampedTransform(transform2, odom_aft_mapped_.header.stamp, "camera_init", "spinnaker"));
+
+    // camera_path_
+    geometry_msgs::PoseStamped camera_pose;
+    tf::Vector3 vec3;
+    tf::Quaternion q3;
+    vec3 = transform2.getOrigin();
+    q3 = transform2.getRotation();
+
+    camera_pose.header.stamp = odom_aft_mapped_.header.stamp;
+    camera_pose.header.frame_id = "camera_init";
+    camera_pose.pose.position.x = vec3.getX();
+    camera_pose.pose.position.y = vec3.getY();
+    camera_pose.pose.position.z = vec3.getZ();
+    camera_pose.pose.orientation.x = q3.getX();
+    camera_pose.pose.orientation.y = q3.getY();
+    camera_pose.pose.orientation.z = q3.getZ();
+    camera_pose.pose.orientation.w = q3.getW();
+    camera_path_.poses.push_back(camera_pose);
 }
 
 void LaserMapping::PublishFrameWorld() {
@@ -779,15 +851,34 @@ void LaserMapping::PublishFrameEffectWorld(const ros::Publisher &pub_laser_cloud
 }
 
 void LaserMapping::Savetrajectory(const std::string &traj_file) {
+    // traj_file = '/home/siminghe/traj.txt';
     std::ofstream ofs;
-    ofs.open(traj_file, std::ios::out);
+    ofs.open("/home/siminghe/traj.txt", std::ios::out);
     if (!ofs.is_open()) {
-        LOG(ERROR) << "Failed to open traj_file: " << traj_file;
+        LOG(ERROR) << "Failed to open traj_file: " << "/home/siminghe/traj.txt";
         return;
     }
 
     ofs << "#timestamp x y z q_x q_y q_z q_w" << std::endl;
     for (const auto &p : path_.poses) {
+        ofs << std::fixed << std::setprecision(6) << p.header.stamp.toSec() << " " << std::setprecision(15)
+            << p.pose.position.x << " " << p.pose.position.y << " " << p.pose.position.z << " " << p.pose.orientation.x
+            << " " << p.pose.orientation.y << " " << p.pose.orientation.z << " " << p.pose.orientation.w << std::endl;
+    }
+
+    ofs.close();
+}
+
+void LaserMapping::SaveCamtrajectory(const std::string &traj_file) {
+    std::ofstream ofs;
+    ofs.open("/home/siminghe/traj_cam.txt", std::ios::out);
+    if (!ofs.is_open()) {
+        LOG(ERROR) << "Failed to open traj_file: " << "/home/siminghe/traj_cam.txt";
+        return;
+    }
+
+    ofs << "#timestamp x y z q_x q_y q_z q_w" << std::endl;
+    for (const auto &p : camera_path_.poses) {
         ofs << std::fixed << std::setprecision(6) << p.header.stamp.toSec() << " " << std::setprecision(15)
             << p.pose.position.x << " " << p.pose.position.y << " " << p.pose.position.z << " " << p.pose.orientation.x
             << " " << p.pose.orientation.y << " " << p.pose.orientation.z << " " << p.pose.orientation.w << std::endl;

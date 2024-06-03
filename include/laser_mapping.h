@@ -60,6 +60,7 @@ class LaserMapping {
     void PublishFrameBody(const ros::Publisher &pub_laser_cloud_body);
     void PublishFrameEffectWorld(const ros::Publisher &pub_laser_cloud_effect_world);
     void Savetrajectory(const std::string &traj_file);
+    void SaveCamtrajectory(const std::string &traj_file);
 
     void Finish();
 
@@ -168,6 +169,7 @@ class LaserMapping {
 
     PointCloudType::Ptr pcl_wait_save_{new PointCloudType()};  // debug save
     nav_msgs::Path path_;
+    nav_msgs::Path camera_path_;
     geometry_msgs::PoseStamped msg_body_pose_;
 };
 
